@@ -1,5 +1,7 @@
 package com.example.salon.entity;
 
+import com.example.salon.enums.MetodoPagamento;
+import com.example.salon.enums.StatusServico;
 import lombok.Data;
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -25,6 +27,10 @@ public class Lancamento {
     private LocalTime hora;
     private String nomeCliente;
     private String contatoCliente;
-    private String statusServico;
-    private String metodoPagamento;
+
+    @Enumerated(EnumType.STRING)
+    private StatusServico statusServico;
+
+    @Enumerated(EnumType.STRING)
+    private MetodoPagamento metodoPagamento;
 }
