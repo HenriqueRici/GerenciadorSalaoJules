@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,12 +29,12 @@ public class ColaboradorController {
     }
 
     @PostMapping
-    public Colaborador create(@RequestBody Colaborador colaborador) {
+    public Colaborador create(@Valid @RequestBody Colaborador colaborador) {
         return colaboradorService.save(colaborador);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Colaborador> update(@PathVariable Long id, @RequestBody Colaborador colaboradorDetails) {
+    public ResponseEntity<Colaborador> update(@PathVariable Long id, @Valid @RequestBody Colaborador colaboradorDetails) {
         Optional<Colaborador> optionalColaborador = colaboradorService.findById(id);
         if (optionalColaborador.isPresent()) {
             Colaborador colaborador = optionalColaborador.get();
