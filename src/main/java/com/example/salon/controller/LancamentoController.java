@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,27 +29,21 @@ public class LancamentoController {
     }
 
     @PostMapping
-    public Lancamento create(@RequestBody Lancamento lancamento) {
+    public Lancamento create(@Valid @RequestBody Lancamento lancamento) {
         return lancamentoService.save(lancamento);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Lancamento> update(@PathVariable Long id, @RequestBody Lancamento lancamentoDetails) {
-        Optional<Lancamento> optionalLancamento = lancamentoService.findById(id);
-        if (optionalLancamento.isPresent()) {
-            Lancamento lancamento = optionalLancamento.get();
-            lancamento.setColaborador(lancamentoDetails.getColaborador());
-            lancamento.setServico(lancamentoDetails.getServico());
-            lancamento.setData(lancamentoDetails.getData());
-            lancamento.setHora(lancamentoDetails.getHora());
-            lancamento.setNomeCliente(lancamentoDetails.getNomeCliente());
-            lancamento.setContatoCliente(lancamentoDetails.getContatoCliente());
-            lancamento.setStatusServico(lancamentoDetails.getStatusServico());
-            lancamento.setMetodoPagamento(lancamentoDetails.getMetodoPagamento());
-            return ResponseEntity.ok(lancamentoService.save(lancamento));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Lancamento> update(@PathVariable Long id, @Valid @RequestBody Lancamento lancamentoDetails) {
+        lancamentoDetails.setId(id);
+        Lancamento updatedLancamento = lancamentoService.save(lancamentoDetails);
+        return ResponseEntity.ok(updatedLancamento);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Lancamento> partialUpdate(@PathVariable Long id, @RequestBody Lancamento lancamentoDetails) {
+        Lancamento updatedLancamento = lancamentoService.partialUpdate(id, lancamentoDetails);
+        return ResponseEntity.ok(updatedLancamento);
     }
 
     @DeleteMapping("/{id}")

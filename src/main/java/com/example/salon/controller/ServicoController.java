@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,24 +29,21 @@ public class ServicoController {
     }
 
     @PostMapping
-    public Servico create(@RequestBody Servico servico) {
+    public Servico create(@Valid @RequestBody Servico servico) {
         return servicoService.save(servico);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Servico> update(@PathVariable Long id, @RequestBody Servico servicoDetails) {
-        Optional<Servico> optionalServico = servicoService.findById(id);
-        if (optionalServico.isPresent()) {
-            Servico servico = optionalServico.get();
-            servico.setTipoServico(servicoDetails.getTipoServico());
-            servico.setTempoServico(servicoDetails.getTempoServico());
-            servico.setValor(servicoDetails.getValor());
-            servico.setDtInicio(servicoDetails.getDtInicio());
-            servico.setDtFim(servicoDetails.getDtFim());
-            return ResponseEntity.ok(servicoService.save(servico));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Servico> update(@PathVariable Long id, @Valid @RequestBody Servico servicoDetails) {
+        servicoDetails.setId(id);
+        Servico updatedServico = servicoService.save(servicoDetails);
+        return ResponseEntity.ok(updatedServico);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Servico> partialUpdate(@PathVariable Long id, @RequestBody Servico servicoDetails) {
+        Servico updatedServico = servicoService.partialUpdate(id, servicoDetails);
+        return ResponseEntity.ok(updatedServico);
     }
 
     @DeleteMapping("/{id}")

@@ -35,19 +35,16 @@ public class ColaboradorController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Colaborador> update(@PathVariable Long id, @Valid @RequestBody Colaborador colaboradorDetails) {
-        Optional<Colaborador> optionalColaborador = colaboradorService.findById(id);
-        if (optionalColaborador.isPresent()) {
-            Colaborador colaborador = optionalColaborador.get();
-            colaborador.setNome(colaboradorDetails.getNome());
-            colaborador.setCpf(colaboradorDetails.getCpf());
-            colaborador.setPercentualComissao(colaboradorDetails.getPercentualComissao());
-            colaborador.setChavePix(colaboradorDetails.getChavePix());
-            colaborador.setDtInicio(colaboradorDetails.getDtInicio());
-            colaborador.setDtFim(colaboradorDetails.getDtFim());
-            return ResponseEntity.ok(colaboradorService.save(colaborador));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        // Ensure the ID from the path is set on the object
+        colaboradorDetails.setId(id);
+        Colaborador updatedColaborador = colaboradorService.save(colaboradorDetails);
+        return ResponseEntity.ok(updatedColaborador);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Colaborador> partialUpdate(@PathVariable Long id, @RequestBody Colaborador colaboradorDetails) {
+        Colaborador updatedColaborador = colaboradorService.partialUpdate(id, colaboradorDetails);
+        return ResponseEntity.ok(updatedColaborador);
     }
 
     @DeleteMapping("/{id}")

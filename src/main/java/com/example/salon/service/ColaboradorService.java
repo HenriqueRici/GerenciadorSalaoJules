@@ -1,6 +1,7 @@
 package com.example.salon.service;
 
 import com.example.salon.entity.Colaborador;
+import com.example.salon.exception.ResourceNotFoundException;
 import com.example.salon.exception.ValidationException;
 import com.example.salon.repository.ColaboradorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +26,47 @@ public class ColaboradorService {
     }
 
     public Colaborador save(Colaborador colaborador) {
+        validateOverlappingCpf(colaborador);
+        return colaboradorRepository.save(colaborador);
+    }
+
+    public Colaborador partialUpdate(Long id, Colaborador colaboradorDetails) {
+        Colaborador colaborador = colaboradorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Colaborador não encontrado com o id: " + id));
+
+        if (colaboradorDetails.getNome() != null) {
+            colaborador.setNome(colaboradorDetails.getNome());
+        }
+        if (colaboradorDetails.getCpf() != null) {
+            colaborador.setCpf(colaboradorDetails.getCpf());
+        }
+        if (colaboradorDetails.getPercentualComissao() != null) {
+            colaborador.setPercentualComissao(colaboradorDetails.getPercentualComissao());
+        }
+        if (colaboradorDetails.getChavePix() != null) {
+            colaborador.setChavePix(colaboradorDetails.getChavePix());
+        }
+        if (colaboradorDetails.getDtInicio() != null) {
+            colaborador.setDtInicio(colaboradorDetails.getDtInicio());
+        }
+        if (colaboradorDetails.getDtFim() != null) {
+            colaborador.setDtFim(colaboradorDetails.getDtFim());
+        }
+
+        validateOverlappingCpf(colaborador);
+        return colaboradorRepository.save(colaborador);
+    }
+
+    public void deleteById(Long id) {
+        colaboradorRepository.deleteById(id);
+    }
+
+    private void validateOverlappingCpf(Colaborador colaborador) {
         List<Colaborador> existing = colaboradorRepository.findByCpfAndOverlappingDateRange(
                 colaborador.getCpf(),
                 colaborador.getDtInicio(),
                 colaborador.getDtFim());
 
-        // When updating, filter out the collaborator being updated
         if (colaborador.getId() != null) {
             existing = existing.stream()
                     .filter(c -> !c.getId().equals(colaborador.getId()))
@@ -40,11 +76,5 @@ public class ColaboradorService {
         if (!existing.isEmpty()) {
             throw new ValidationException("Já existe um colaborador com este CPF no período informado.");
         }
-
-        return colaboradorRepository.save(colaborador);
-    }
-
-    public void deleteById(Long id) {
-        colaboradorRepository.deleteById(id);
     }
 }
